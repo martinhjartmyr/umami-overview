@@ -27,6 +27,7 @@ export interface UmamiSettings {
   apiKey?: string
   username?: string
   password?: string
+  mockMode?: boolean
 }
 
 export type UmamiCredentials = { apiKey: string } | { username: string; password: string }
