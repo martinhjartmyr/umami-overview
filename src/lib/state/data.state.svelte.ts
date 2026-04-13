@@ -6,6 +6,7 @@ export interface AllSettings {
   theme?: 'light' | 'dark' | 'auto'
   umami?: Partial<UmamiSettings>
   sortBy?: 'name' | 'visitors' | 'active'
+  showAllWebsites?: boolean
 }
 
 const STORAGE_KEY = 'umami-overview-settings'
@@ -17,6 +18,7 @@ let stats: SvelteMap<string, WebsiteStats> = new SvelteMap()
 let active: SvelteMap<string, number> = new SvelteMap()
 let isLoading: boolean = $state(false)
 let error: string | null = $state(null)
+let showAllWebsitesState: boolean = $state(false)
 
 function resetState() {
   settings = null
@@ -50,11 +52,15 @@ export const dataStore = {
   get error() {
     return error
   },
+  get showAllWebsites() {
+    return showAllWebsitesState
+  },
 
   async init(): Promise<void> {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const allSettings = JSON.parse(stored)
+      showAllWebsitesState = allSettings.showAllWebsites ?? false
       const s = allSettings.umami as UmamiSettings
       settings = s
       service = new UmamiService(s.apiUrl)
@@ -72,6 +78,7 @@ export const dataStore = {
     const merged = {
       ...existing,
       umami: s,
+      showAllWebsites: existing.showAllWebsites ?? false,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
     service = new UmamiService(s.apiUrl)
@@ -86,6 +93,17 @@ export const dataStore = {
   clearSettings(): void {
     localStorage.removeItem(STORAGE_KEY)
     resetState()
+  },
+
+  setShowAllWebsites(value: boolean): void {
+    const existingStored = localStorage.getItem(STORAGE_KEY)
+    const existing = existingStored ? JSON.parse(existingStored) : {}
+    const merged = {
+      ...existing,
+      showAllWebsites: value,
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+    showAllWebsitesState = value
   },
 
   async fetchAll(): Promise<void> {
@@ -145,6 +163,7 @@ export async function importSettings(json: string): Promise<{ success: boolean; 
     const merged = {
       theme: parsed.theme ?? existing.theme,
       sortBy: parsed.sortBy ?? existing.sortBy,
+      showAllWebsites: parsed.showAllWebsites ?? existing.showAllWebsites ?? false,
       umami: {
         apiUrl: parsed.umami.apiUrl,
         username: parsed.umami.username ?? existing.umami?.username,
@@ -154,6 +173,7 @@ export async function importSettings(json: string): Promise<{ success: boolean; 
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+    showAllWebsitesState = merged.showAllWebsites
 
     const umamiSettings: UmamiSettings = {
       apiUrl: merged.umami.apiUrl,

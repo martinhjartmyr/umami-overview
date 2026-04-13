@@ -77,7 +77,7 @@
       <p style="color: #ef4444;">Error: {dataStore.error}</p>
     {:else if dataStore.websites.length > 0}
       <div class="space-y-3 sm:space-y-6">
-        {#if dataStore.websites.length > 1}
+        {#if dataStore.websites.length > 1 && dataStore.showAllWebsites}
           <AggregatedStatsCard stats={aggregatedStats} active={aggregatedStats.active} />
         {/if}
         <div class="website-grid grid gap-3 sm:gap-6" style="grid-template-columns: 1fr;">

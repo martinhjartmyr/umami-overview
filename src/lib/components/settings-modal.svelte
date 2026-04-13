@@ -13,7 +13,9 @@
   let apiUrl = $state(dataStore.settings?.apiUrl ?? '')
   let username = $state(dataStore.settings?.username ?? '')
   let password = $state(dataStore.settings?.password ?? '')
+  let showAllWebsites = $state(dataStore.showAllWebsites)
   let isConnecting = $state(false)
+  let showAllWebsitesTouched = $state(false)
   let localError = $state<string | null>(null)
   let showImportModal = $state(false)
   let importJson = $state('')
@@ -49,6 +51,7 @@
       if (dataStore.error) {
         localError = dataStore.error
       } else {
+        persistShowAllWebsites()
         onClose()
       }
     } finally {
@@ -66,6 +69,17 @@
 
   function handleCancel() {
     onClose()
+  }
+
+  function handleToggleShowAllWebsites(value: boolean) {
+    showAllWebsites = value
+    showAllWebsitesTouched = true
+  }
+
+  function persistShowAllWebsites() {
+    if (showAllWebsitesTouched) {
+      dataStore.setShowAllWebsites(showAllWebsites)
+    }
   }
 
   async function handleExport() {
@@ -174,6 +188,32 @@
           <option value="visitors">Visitors</option>
           <option value="active">Active</option>
         </select>
+      </div>
+
+      <div class="mt-6 border-t border-border pt-4">
+        <div class="flex items-center justify-between">
+          <label for="showAllWebsites" class="text-sm font-medium text-fg-muted">
+            Show all websites aggregation
+          </label>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={showAllWebsites}
+            aria-label="Show all websites aggregation"
+            onclick={() => handleToggleShowAllWebsites(!showAllWebsites)}
+            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+            class:bg-indigo-600={showAllWebsites}
+            class:bg-tertiary={!showAllWebsites}
+          >
+            <span
+              aria-hidden="true"
+              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+              class:translate-x-5={showAllWebsites}
+              class:translate-x-0={!showAllWebsites}
+            ></span>
+          </button>
+        </div>
+        <p class="mt-1 text-xs text-fg-subtle">Display combined statistics for all websites</p>
       </div>
 
       <div class="mt-6 border-t border-border pt-4">
