@@ -1,6 +1,6 @@
 <script lang="ts">
   import './layout.css'
-  import favicon from '$lib/assets/favicon.svg'
+  import { dev } from '$app/environment'
   import { themeState, STORAGE_KEY } from '$lib/state/theme.svelte.js'
   import ThemeToggle from '$lib/components/theme-toggle.svelte'
   import SettingsModal from '$lib/components/settings-modal.svelte'
@@ -52,7 +52,16 @@
   })
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+  <title>Umami Overview</title>
+  {#if !dev}
+    <script
+      defer
+      src="https://stats.novusy.com/script.js"
+      data-website-id="ff13f097-7df5-4839-8882-5a5f2815afe4"
+    ></script>
+  {/if}
+</svelte:head>
 
 <div class="flex min-h-screen flex-col">
   <header class="border-b border-border bg-primary px-4 py-3">
