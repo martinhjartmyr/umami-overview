@@ -130,7 +130,7 @@
 <style>
   @media (min-width: 780px) {
     :global(.website-grid) {
-      grid-template-columns: repeat(auto-fill, minmax(780px, 1fr)) !important;
+      grid-template-columns: repeat(auto-fill, minmax(620px, 1fr)) !important;
     }
   }
 </style>
