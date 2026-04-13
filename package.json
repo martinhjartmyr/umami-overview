@@ -2,6 +2,7 @@
   "name": "umami-overview",
   "version": "0.0.1",
   "private": false,
+  "packages": [],
   "license": "MIT",
   "description": "A dashboard overview for Umami analytics. View all your websites' statistics at a glance.",
   "repository": {
