@@ -67,13 +67,13 @@ export class UmamiService {
 
   async fetchStats(websiteId: string): Promise<WebsiteStats> {
     const nowMs = Date.now()
-    const startMs = nowMs - 86400 * 1000
-    const prevStartMs = startMs - 86400 * 1000
-    const prevEndMs = startMs
+    const truncatedNow = new Date(nowMs)
+    truncatedNow.setMinutes(0, 0, 0)
+    const startMs = truncatedNow.getTime() - 86400 * 1000
 
     const [current, previous] = await Promise.all([
       this.fetchStatsForPeriod(websiteId, startMs, nowMs),
-      this.fetchStatsForPeriod(websiteId, prevStartMs, prevEndMs),
+      this.fetchStatsForPeriod(websiteId, startMs - 86400 * 1000, startMs),
     ])
 
     return {
