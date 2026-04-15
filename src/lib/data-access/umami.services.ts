@@ -1,4 +1,4 @@
-import type { Website, WebsiteStats, UmamiCredentials } from './types.js'
+import type { Website, WebsiteStats, UmamiCredentials, PageviewData } from './types.js'
 
 export class UmamiService {
   private token: string = ''
@@ -124,6 +124,24 @@ export class UmamiService {
 
     const data = (await response.json()) as { visitors: number }
     return data.visitors
+  }
+
+  async fetchPageviews(
+    websiteId: string,
+    startAt: number,
+    endAt: number,
+    timezone: string,
+  ): Promise<PageviewData> {
+    const url = `${this.apiUrl}/api/websites/${websiteId}/pageviews?startAt=${startAt}&endAt=${endAt}&unit=hour&timezone=${timezone}`
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${url}`)
+    }
+
+    return (await response.json()) as PageviewData
   }
 
   isAuthenticated(): boolean {

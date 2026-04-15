@@ -84,8 +84,14 @@
           {#each sortedWebsites as website (website.id)}
             {@const stats = dataStore.stats.get(website.id)}
             {@const activeCount = dataStore.active.get(website.id) ?? 0}
+            {@const websitePageviews = dataStore.pageviews.get(website.id)}
             {#if stats}
-              <WebsiteCard {website} {stats} active={activeCount} />
+              <WebsiteCard
+                {website}
+                {stats}
+                active={activeCount}
+                pageviewData={websitePageviews ?? { pageviews: [], sessions: [] }}
+              />
             {/if}
           {/each}
         </div>

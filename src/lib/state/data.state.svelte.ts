@@ -1,5 +1,5 @@
 import { SvelteMap } from 'svelte/reactivity'
-import type { UmamiSettings, Website, WebsiteStats } from '../data-access/types.js'
+import type { UmamiSettings, Website, WebsiteStats, PageviewData } from '../data-access/types.js'
 import { UmamiService } from '../data-access/umami.services.js'
 
 export interface AllSettings {
@@ -198,6 +198,8 @@ let service: UmamiService | null = $state(null)
 let websites: Website[] = $state([])
 let stats: SvelteMap<string, WebsiteStats> = new SvelteMap()
 let active: SvelteMap<string, number> = new SvelteMap()
+let pageviews: SvelteMap<string, PageviewData> = new SvelteMap()
+let timezone: string = $state('')
 let isLoading: boolean = $state(false)
 let error: string | null = $state(null)
 let showAllWebsitesState: boolean = $state(false)
@@ -208,6 +210,7 @@ function resetState() {
   websites = []
   stats = new SvelteMap()
   active = new SvelteMap()
+  pageviews = new SvelteMap()
   isLoading = false
   error = null
 }
@@ -227,6 +230,12 @@ export const dataStore = {
   },
   get active() {
     return active
+  },
+  get pageviews() {
+    return pageviews
+  },
+  get timezone() {
+    return timezone
   },
   get isLoading() {
     return isLoading
@@ -313,27 +322,40 @@ export const dataStore = {
     error = null
 
     try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
       const allWebsites = await service.fetchWebsites()
       websites = allWebsites
 
+      const now = Date.now()
+      const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000
+
       const statsResults = await Promise.all(
         allWebsites.map(async (w) => {
-          const [websiteStats, websiteActive] = await Promise.all([
+          const [websiteStats, websiteActive, websitePageviews] = await Promise.all([
             service!.fetchStats(w.id),
             service!.fetchActive(w.id),
+            service!.fetchPageviews(w.id, twentyFourHoursAgo, now, timezone),
           ])
-          return { id: w.id, stats: websiteStats, active: websiteActive }
+          return {
+            id: w.id,
+            stats: websiteStats,
+            active: websiteActive,
+            pageviews: websitePageviews,
+          }
         }),
       )
 
       const newStats = new SvelteMap<string, WebsiteStats>()
       const newActive = new SvelteMap<string, number>()
+      const newPageviews = new SvelteMap<string, PageviewData>()
       for (const r of statsResults) {
         newStats.set(r.id, r.stats)
         newActive.set(r.id, r.active)
+        newPageviews.set(r.id, r.pageviews)
       }
       stats = newStats
       active = newActive
+      pageviews = newPageviews
     } catch (e) {
       error = e instanceof Error ? e.message : 'Unknown error'
     } finally {

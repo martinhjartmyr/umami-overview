@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { SvelteMap } from 'svelte/reactivity'
   import { dataStore } from '$lib/state/data.state.svelte.js'
-  import type { Website, WebsiteStats } from '$lib/data-access/types.js'
+  import type { Website, WebsiteStats, PageviewData } from '$lib/data-access/types.js'
   import {
     calcTrend,
     trendColor,
@@ -8,9 +9,37 @@
     formatNumber,
     formatDuration,
   } from '$lib/utils/format.js'
+  import { BarChart } from 'layerchart'
 
-  let { website, stats, active }: { website: Website; stats: WebsiteStats; active: number } =
+  let {
+    website,
+    stats,
+    active,
+    pageviewData,
+  }: { website: Website; stats: WebsiteStats; active: number; pageviewData: PageviewData } =
     $props()
+
+  const chartData = $derived.by(() => {
+    const currentHour = new Date().getHours()
+    const buckets = new SvelteMap<number, { hour: string; pageviews: number; visitors: number }>()
+
+    for (let i = 0; i < 24; i++) {
+      const hour = (currentHour - 23 + i + 24) % 24
+      const timeStr = `${hour.toString().padStart(2, '0')}:00`
+      buckets.set(i, { hour: timeStr, pageviews: 0, visitors: 0 })
+    }
+
+    const addToBucket = (x: string, y: number, field: 'pageviews' | 'visitors') => {
+      const hour = parseInt(x.split(' ')[1].split(':')[0], 10)
+      const offset = (hour - currentHour + 23) % 24
+      buckets.get(offset)![field] += y
+    }
+
+    pageviewData.pageviews.forEach((v) => addToBucket(v.x, v.y, 'pageviews'))
+    pageviewData.sessions.forEach((v) => addToBucket(v.x, v.y, 'visitors'))
+
+    return Array.from(buckets.values())
+  })
 
   const umamiBaseUrl = $derived(dataStore.settings?.apiUrl?.replace(/\/$/, '') ?? '')
   const faviconUrl = $derived(`https://www.google.com/s2/favicons?domain=${website.domain}&sz=64`)
@@ -34,7 +63,7 @@
   )
 </script>
 
-<div class="w-full rounded-2xl bg-primary p-4 sm:p-6 xl:p-6 2xl:p-5">
+<div class="grid w-full rounded-2xl bg-primary p-4 sm:p-6 lg:gap-3 xl:p-6 2xl:p-5">
   <div class="mb-4 flex items-start justify-between sm:mb-6 xl:mb-6 2xl:mb-5">
     <div class="flex min-w-0 flex-col gap-1">
       <div class="flex min-w-0 items-center gap-2 sm:gap-3 xl:gap-3 2xl:gap-2">
@@ -74,6 +103,18 @@
         </p>
       </div>
     {/if}
+  </div>
+
+  <div class="mb-4 h-[100px]">
+    <BarChart
+      data={chartData}
+      x="hour"
+      y="visitors"
+      height={100}
+      axis={false}
+      grid={false}
+      rule={false}
+    />
   </div>
 
   <div class="grid grid-cols-3 gap-4 sm:gap-6 xl:grid-cols-5 xl:gap-5 2xl:gap-4">

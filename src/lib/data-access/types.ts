@@ -22,6 +22,11 @@ export interface ActiveStats {
   visitors: number
 }
 
+export interface PageviewData {
+  pageviews: { x: string; y: number }[]
+  sessions: { x: string; y: number }[]
+}
+
 export interface UmamiSettings {
   apiUrl: string
   apiKey?: string
