@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { SvelteMap } from 'svelte/reactivity'
   import { dataStore } from '$lib/state/data.state.svelte.js'
   import type { Website, WebsiteStats, PageviewData } from '$lib/data-access/types.js'
   import {
@@ -20,25 +19,39 @@
     $props()
 
   const chartData = $derived.by(() => {
-    const currentHour = new Date().getHours()
-    const buckets = new SvelteMap<number, { hour: string; pageviews: number; visitors: number }>()
+    const now = new Date()
+    const todayDate = now.toISOString().split('T')[0]
+    const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    const currentHour = now.getHours()
+
+    const buckets: { hour: string; pageviews: number; visitors: number }[] = []
 
     for (let i = 0; i < 24; i++) {
       const hour = (currentHour - 23 + i + 24) % 24
+      const isToday = i === 23
+      const dateStr = isToday ? todayDate : yesterdayDate
       const timeStr = `${hour.toString().padStart(2, '0')}:00`
-      buckets.set(i, { hour: timeStr, pageviews: 0, visitors: 0 })
+      const label = `${dateStr} ${timeStr}:00`
+      buckets.push({ hour: label, pageviews: 0, visitors: 0 })
     }
 
     const addToBucket = (x: string, y: number, field: 'pageviews' | 'visitors') => {
+      const datePart = x.split(' ')[0]
       const hour = parseInt(x.split(' ')[1].split(':')[0], 10)
-      const offset = (hour - currentHour + 23) % 24
-      buckets.get(offset)![field] += y
+
+      let offset = (hour - currentHour + 23) % 24
+
+      if (offset === 23 && hour === currentHour && datePart === yesterdayDate) {
+        offset = 22
+      }
+
+      buckets[offset]![field] += y
     }
 
     pageviewData.pageviews.forEach((v) => addToBucket(v.x, v.y, 'pageviews'))
     pageviewData.sessions.forEach((v) => addToBucket(v.x, v.y, 'visitors'))
 
-    return Array.from(buckets.values())
+    return buckets
   })
 
   const umamiBaseUrl = $derived(dataStore.settings?.apiUrl?.replace(/\/$/, '') ?? '')
