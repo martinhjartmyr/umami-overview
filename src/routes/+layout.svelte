@@ -72,7 +72,8 @@
           href="https://github.com/martinhjartmyr/umami-overview"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex h-10 w-10 items-center justify-center rounded-lg border border-border p-1 text-fg-muted transition-colors hover:text-fg"
+          aria-label="GitHub repository"
+          class="flex h-10 w-10 items-center justify-center rounded-lg border border-border p-1 text-fg-muted transition-colors hover:bg-tertiary"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
