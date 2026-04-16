@@ -188,6 +188,65 @@ const MOCK_ACTIVE: Record<string, number> = {
   '12': 45,
 }
 
+function generateMockPageviews(): Record<string, PageviewData> {
+  const now = new Date()
+  const currentHour = now.getHours()
+  const result: Record<string, PageviewData> = {}
+
+  const hourlyMultiplier: Record<number, number> = {
+    0: 0.2,
+    1: 0.15,
+    2: 0.1,
+    3: 0.08,
+    4: 0.1,
+    5: 0.15,
+    6: 0.3,
+    7: 0.5,
+    8: 0.7,
+    9: 0.85,
+    10: 0.95,
+    11: 1.0,
+    12: 0.9,
+    13: 0.95,
+    14: 1.0,
+    15: 0.9,
+    16: 0.8,
+    17: 0.7,
+    18: 0.6,
+    19: 0.5,
+    20: 0.4,
+    21: 0.35,
+    22: 0.3,
+    23: 0.25,
+  }
+
+  for (const w of MOCK_WEBSITES) {
+    const baseVisitors = MOCK_ACTIVE[w.id] ?? 10
+    const scale = Math.max(baseVisitors / 100, 0.5)
+    const pageviews: { x: string; y: number }[] = []
+    const sessions: { x: string; y: number }[] = []
+
+    for (let i = 0; i < 24; i++) {
+      const hour = (currentHour - 23 + i + 24) % 24
+      const date = new Date(now.getTime() - (23 - i) * 60 * 60 * 1000)
+      const dateStr = date.toISOString().split('T')[0]
+      const timeStr = hour.toString().padStart(2, '0')
+      const x = `${dateStr} ${timeStr}:00`
+
+      const variation = 0.7 + Math.random() * 0.6
+      const pv = Math.round(baseVisitors * hourlyMultiplier[hour]! * scale * variation * 10)
+      const ss = Math.round(pv * (0.3 + Math.random() * 0.2))
+
+      pageviews.push({ x, y: pv })
+      sessions.push({ x, y: ss })
+    }
+
+    result[w.id] = { pageviews, sessions }
+  }
+
+  return result
+}
+
 function isMockMode(): boolean {
   if (typeof window === 'undefined') return false
   return new URLSearchParams(window.location.search).has('mock')
@@ -302,12 +361,16 @@ export const dataStore = {
       websites = MOCK_WEBSITES
       const newStats = new SvelteMap<string, WebsiteStats>()
       const newActive = new SvelteMap<string, number>()
+      const newPageviews = new SvelteMap<string, PageviewData>()
+      const mockPageviews = generateMockPageviews()
       for (const w of MOCK_WEBSITES) {
         newStats.set(w.id, MOCK_STATS[w.id])
         newActive.set(w.id, MOCK_ACTIVE[w.id])
+        newPageviews.set(w.id, mockPageviews[w.id])
       }
       stats = newStats
       active = newActive
+      pageviews = newPageviews
       isLoading = false
       error = null
       return
