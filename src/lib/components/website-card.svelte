@@ -39,7 +39,7 @@
       const datePart = x.split(' ')[0]
       const hour = parseInt(x.split(' ')[1].split(':')[0], 10)
 
-      let offset = (hour - currentHour + 23) % 24
+      let offset = (hour - currentHour + 23 + 24) % 24
 
       if (offset === 23 && hour === currentHour && datePart === yesterdayDate) {
         offset = 22
@@ -48,8 +48,12 @@
       buckets[offset]![field] += y
     }
 
-    pageviewData.pageviews.forEach((v) => addToBucket(v.x, v.y, 'pageviews'))
-    pageviewData.sessions.forEach((v) => addToBucket(v.x, v.y, 'visitors'))
+    // Only use last 24 entries (API may return 25 due to timezone/inclusive end)
+    const last24Pageviews = pageviewData.pageviews.slice(-24)
+    const last24Sessions = pageviewData.sessions.slice(-24)
+
+    last24Pageviews.forEach((v) => addToBucket(v.x, v.y, 'pageviews'))
+    last24Sessions.forEach((v) => addToBucket(v.x, v.y, 'visitors'))
 
     return buckets
   })
