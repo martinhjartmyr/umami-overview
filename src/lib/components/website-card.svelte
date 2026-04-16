@@ -104,7 +104,12 @@
         </h2>
       </div>
       <p class="text-xs text-fg-subtle sm:text-sm">
-        {website.domain}
+        <a
+          href="https://{website.domain}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:underline">{website.domain}</a
+        >
       </p>
     </div>
 
