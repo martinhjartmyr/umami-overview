@@ -15,6 +15,7 @@
 html {
   background-color: var(--color-secondary);
   color: var(--color-fg);
+  color-scheme: light;
 }
 
 html.dark {
@@ -25,8 +26,21 @@ html.dark {
   --color-fg: #f9fafb;
   --color-fg-muted: #d1d5db;
   --color-fg-subtle: #9ca3af;
+  color-scheme: dark;
+  --color-surface-100: var(--color-secondary);
+  --color-surface-200: var(--color-tertiary);
+  --color-surface-300: var(--color-border);
+  --color-surface-content: var(--color-fg);
 }
 
 .lc-root-container {
-  --color-primary: var(--color-secondary);
+  --color-primary: #e0e0e0;
+  --color-surface-100: var(--color-primary);
+  --color-surface-200: var(--color-tertiary);
+  --color-surface-300: var(--color-border);
+  --color-surface-content: var(--color-fg);
+}
+
+html.dark .lc-root-container {
+  --color-primary: #4b5563;
 }

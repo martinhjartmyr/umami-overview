@@ -137,7 +137,7 @@
       grid={false}
       rule={false}
       props={{
-        bars: { stroke: 'var(--color-border)', strokeWidth: 1 },
+        bars: { stroke: 'var(--color-fg-subtle)', strokeWidth: 1 },
         yAxis: {
           format: (value: number) => Math.round(value).toString(),
         },
@@ -286,7 +286,7 @@
 
 <style>
   :global(.lc-axis text) {
-    fill: var(--color-fg);
+    fill: var(--color-fg-muted);
     font-weight: normal;
     text-shadow: none;
     stroke: none;
