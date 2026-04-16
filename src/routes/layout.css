@@ -2,9 +2,9 @@
 
 @theme {
   --color-primary: #ffffff;
-  --color-secondary: #e5e7eb;
+  --color-secondary: #f0f0f0;
   --color-tertiary: #f3f4f6;
-  --color-border: #e5e7eb;
+  --color-border: #d1d1d1;
   --color-fg: #111827;
   --color-fg-muted: #4b5563;
   --color-fg-subtle: #9ca3af;
@@ -25,4 +25,8 @@ html.dark {
   --color-fg: #f9fafb;
   --color-fg-muted: #d1d5db;
   --color-fg-subtle: #9ca3af;
+}
+
+.lc-root-container {
+  --color-primary: var(--color-secondary);
 }

@@ -8,7 +8,7 @@
     formatNumber,
     formatDuration,
   } from '$lib/utils/format.js'
-  import { BarChart } from 'layerchart'
+  import { BarChart, Tooltip } from 'layerchart'
 
   let {
     website,
@@ -24,15 +24,15 @@
     const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     const currentHour = now.getHours()
 
-    const buckets: { hour: string; pageviews: number; visitors: number }[] = []
+    const buckets: { hour: string; label: string; pageviews: number; visitors: number }[] = []
 
     for (let i = 0; i < 24; i++) {
       const hour = (currentHour - 23 + i + 24) % 24
+      const timeStr = hour.toString().padStart(2, '0')
       const isToday = i === 23
       const dateStr = isToday ? todayDate : yesterdayDate
-      const timeStr = `${hour.toString().padStart(2, '0')}:00`
       const label = `${dateStr} ${timeStr}:00`
-      buckets.push({ hour: label, pageviews: 0, visitors: 0 })
+      buckets.push({ hour: timeStr, label, pageviews: 0, visitors: 0 })
     }
 
     const addToBucket = (x: string, y: number, field: 'pageviews' | 'visitors') => {
@@ -128,10 +128,30 @@
       x="hour"
       y="visitors"
       height={100}
-      axis={false}
+      axis={true}
       grid={false}
       rule={false}
-    />
+      props={{
+        bars: { stroke: 'var(--color-border)', strokeWidth: 1 },
+        yAxis: {
+          format: (value: number) => Math.round(value).toString(),
+        },
+      }}
+    >
+      {#snippet tooltip({ context })}
+        {@const tooltipData = context.tooltip?.data}
+        {#if tooltipData}
+          <Tooltip.Root>
+            <Tooltip.Header>Hour: {tooltipData.hour}</Tooltip.Header>
+            <Tooltip.List>
+              <Tooltip.Item label="visitors" color="var(--color-fg-subtle)">
+                {tooltipData.visitors}
+              </Tooltip.Item>
+            </Tooltip.List>
+          </Tooltip.Root>
+        {/if}
+      {/snippet}
+    </BarChart>
   </div>
 
   <div class="grid grid-cols-3 gap-4 sm:gap-6 xl:grid-cols-5 xl:gap-5 2xl:gap-4">
@@ -258,3 +278,12 @@
     </div>
   </div>
 </div>
+
+<style>
+  :global(.lc-axis text) {
+    fill: var(--color-fg);
+    font-weight: normal;
+    text-shadow: none;
+    stroke: none;
+  }
+</style>
