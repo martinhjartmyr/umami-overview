@@ -3,6 +3,7 @@
   import { dataStore } from '$lib/state/data.state.svelte.js'
   import SettingsModal from '$lib/components/settings-modal.svelte'
   import WebsiteCard from '$lib/components/website-card.svelte'
+  import WebsiteCardSkeleton from '$lib/components/website-card-skeleton.svelte'
   import AggregatedStatsCard from '$lib/components/aggregated-stats-card.svelte'
   import type { WebsiteStats } from '$lib/data-access/types.js'
   import { getContext } from 'svelte'
@@ -71,9 +72,7 @@
 
 <div class="h-full p-3 sm:p-6">
   {#if dataStore.settings}
-    {#if dataStore.isLoading}
-      <p class="text-fg-subtle">Loading...</p>
-    {:else if dataStore.error}
+    {#if dataStore.error && dataStore.websites.length === 0}
       <p style="color: #ef4444;">Error: {dataStore.error}</p>
     {:else if dataStore.websites.length > 0}
       <div class="space-y-3 sm:space-y-6">
@@ -92,17 +91,21 @@
                 active={activeCount}
                 pageviewData={websitePageviews ?? { pageviews: [], sessions: [] }}
               />
+            {:else}
+              <WebsiteCardSkeleton />
             {/if}
           {/each}
         </div>
       </div>
+    {:else if dataStore.isLoading}
+      <p class="text-fg-subtle">Loading...</p>
     {:else}
       <p class="text-fg-subtle">No websites found.</p>
     {/if}
   {:else}
     <div class="flex items-center justify-center py-12 sm:py-20">
       <div class="w-full max-w-md rounded-lg border border-border bg-primary px-6 py-8 text-center">
-        <p class="mb-4 text-fg-subtle">Configure your Umami connection to get started.</p>
+        <p class="mb-4 text-fg-muted">Configure your Umami connection to get started.</p>
         <button
           type="button"
           onclick={() => (showSettings = true)}

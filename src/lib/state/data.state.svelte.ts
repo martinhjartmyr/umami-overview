@@ -381,6 +381,19 @@ export const dataStore = {
       return
     }
 
+    await this.fetchWebsitesList()
+    if (error || websites.length === 0) return
+    await this.fetchStatsAndActive()
+    if (error) return
+    await this.fetchPageviewsData()
+  },
+
+  async fetchWebsitesList(): Promise<void> {
+    if (!service) {
+      error = 'Not authenticated'
+      return
+    }
+
     isLoading = true
     error = null
 
@@ -388,41 +401,64 @@ export const dataStore = {
       timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
       const allWebsites = await service.fetchWebsites()
       websites = allWebsites
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Unknown error'
+    } finally {
+      isLoading = false
+    }
+  },
 
-      const now = Date.now()
-      const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000
+  async fetchStatsAndActive(): Promise<void> {
+    if (!service || websites.length === 0) return
 
+    try {
       const statsResults = await Promise.all(
-        allWebsites.map(async (w) => {
-          const [websiteStats, websiteActive, websitePageviews] = await Promise.all([
+        websites.map(async (w) => {
+          const [websiteStats, websiteActive] = await Promise.all([
             service!.fetchStats(w.id),
             service!.fetchActive(w.id),
-            service!.fetchPageviews(w.id, twentyFourHoursAgo, now, timezone),
           ])
           return {
             id: w.id,
             stats: websiteStats,
             active: websiteActive,
-            pageviews: websitePageviews,
           }
         }),
       )
 
-      const newStats = new SvelteMap<string, WebsiteStats>()
-      const newActive = new SvelteMap<string, number>()
-      const newPageviews = new SvelteMap<string, PageviewData>()
       for (const r of statsResults) {
-        newStats.set(r.id, r.stats)
-        newActive.set(r.id, r.active)
-        newPageviews.set(r.id, r.pageviews)
+        stats.set(r.id, r.stats)
+        active.set(r.id, r.active)
       }
-      stats = newStats
-      active = newActive
-      pageviews = newPageviews
     } catch (e) {
       error = e instanceof Error ? e.message : 'Unknown error'
-    } finally {
-      isLoading = false
+    }
+  },
+
+  async fetchPageviewsData(): Promise<void> {
+    if (!service || websites.length === 0) return
+
+    try {
+      const now = Date.now()
+      const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000
+
+      const pageviewResults = await Promise.all(
+        websites.map(async (w) => {
+          const websitePageviews = await service!.fetchPageviews(
+            w.id,
+            twentyFourHoursAgo,
+            now,
+            timezone,
+          )
+          return { id: w.id, pageviews: websitePageviews }
+        }),
+      )
+
+      for (const r of pageviewResults) {
+        pageviews.set(r.id, r.pageviews)
+      }
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Unknown error'
     }
   },
 }
@@ -479,27 +515,61 @@ export async function importSettings(json: string): Promise<{ success: boolean; 
     isLoading = true
     error = null
 
-    const allWebsites = await service.fetchWebsites()
-    websites = allWebsites
-
-    const statsResults = await Promise.all(
-      allWebsites.map(async (w) => {
-        const [websiteStats, websiteActive] = await Promise.all([
-          service!.fetchStats(w.id),
-          service!.fetchActive(w.id),
-        ])
-        return { id: w.id, stats: websiteStats, active: websiteActive }
-      }),
-    )
-
-    const newStats = new SvelteMap<string, WebsiteStats>()
-    const newActive = new SvelteMap<string, number>()
-    for (const r of statsResults) {
-      newStats.set(r.id, r.stats)
-      newActive.set(r.id, r.active)
+    try {
+      const allWebsites = await service.fetchWebsites()
+      websites = allWebsites
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Unknown error'
+      return { success: false, error: error }
+    } finally {
+      isLoading = false
     }
-    stats = newStats
-    active = newActive
+
+    try {
+      const statsResults = await Promise.all(
+        websites.map(async (w) => {
+          const [websiteStats, websiteActive] = await Promise.all([
+            service!.fetchStats(w.id),
+            service!.fetchActive(w.id),
+          ])
+          return { id: w.id, stats: websiteStats, active: websiteActive }
+        }),
+      )
+
+      for (const r of statsResults) {
+        stats.set(r.id, r.stats)
+        active.set(r.id, r.active)
+      }
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Unknown error'
+    }
+
+    try {
+      const now = Date.now()
+      const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000
+
+      const pageviewResults = await Promise.all(
+        websites.map(async (w) => {
+          const websitePageviews = await service!.fetchPageviews(
+            w.id,
+            twentyFourHoursAgo,
+            now,
+            timezone,
+          )
+          return { id: w.id, pageviews: websitePageviews }
+        }),
+      )
+
+      for (const r of pageviewResults) {
+        pageviews.set(r.id, r.pageviews)
+      }
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Unknown error'
+    }
+
+    if (error) {
+      return { success: false, error }
+    }
 
     return { success: true }
   } catch {
