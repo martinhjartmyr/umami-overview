@@ -4,7 +4,9 @@
   import SettingsModal from '$lib/components/settings-modal.svelte'
   import WebsiteCard from '$lib/components/website-card.svelte'
   import WebsiteCardSkeleton from '$lib/components/website-card-skeleton.svelte'
+  import WebsiteTable from '$lib/components/website-table.svelte'
   import AggregatedStatsCard from '$lib/components/aggregated-stats-card.svelte'
+  import ViewToggle from '$lib/components/view-toggle.svelte'
   import type { WebsiteStats } from '$lib/data-access/types.js'
   import { getContext } from 'svelte'
 
@@ -12,6 +14,12 @@
 
   const sortContext = getContext<{ get: () => 'name' | 'visitors' | 'active' }>('sortBy')
   const sortBy = $derived(sortContext.get())
+
+  const viewContext = getContext<{
+    get: () => 'cards' | 'table'
+    set: (value: 'cards' | 'table') => void
+  }>('viewMode')
+  const viewMode = $derived(viewContext.get())
 
   onMount(() => {
     dataStore.init()
@@ -79,23 +87,36 @@
         {#if dataStore.websites.length > 1 && dataStore.showAllWebsites}
           <AggregatedStatsCard stats={aggregatedStats} active={aggregatedStats.active} />
         {/if}
-        <div class="website-grid grid gap-3 sm:gap-6" style="grid-template-columns: 1fr;">
-          {#each sortedWebsites as website (website.id)}
-            {@const stats = dataStore.stats.get(website.id)}
-            {@const activeCount = dataStore.active.get(website.id) ?? 0}
-            {@const websitePageviews = dataStore.pageviews.get(website.id)}
-            {#if stats}
-              <WebsiteCard
-                {website}
-                {stats}
-                active={activeCount}
-                pageviewData={websitePageviews ?? { pageviews: [], sessions: [] }}
-              />
-            {:else}
-              <WebsiteCardSkeleton />
-            {/if}
-          {/each}
+        <div class="flex items-center justify-between">
+          <ViewToggle variant="segmented" />
         </div>
+        {#if viewMode === 'cards'}
+          <div class="website-grid grid gap-3 sm:gap-6" style="grid-template-columns: 1fr;">
+            {#each sortedWebsites as website (website.id)}
+              {@const stats = dataStore.stats.get(website.id)}
+              {@const activeCount = dataStore.active.get(website.id) ?? 0}
+              {@const websitePageviews = dataStore.pageviews.get(website.id)}
+              {#if stats}
+                <WebsiteCard
+                  {website}
+                  {stats}
+                  active={activeCount}
+                  pageviewData={websitePageviews ?? { pageviews: [], sessions: [] }}
+                />
+              {:else}
+                <WebsiteCardSkeleton />
+              {/if}
+            {/each}
+          </div>
+        {:else}
+          <WebsiteTable
+            websites={sortedWebsites}
+            stats={dataStore.stats}
+            active={dataStore.active}
+            pageviews={dataStore.pageviews}
+            loading={!dataStore.stats.size}
+          />
+        {/if}
       </div>
     {:else if dataStore.isLoading}
       <p class="text-fg-subtle">Loading...</p>

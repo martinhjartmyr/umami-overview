@@ -10,32 +10,46 @@
   let { children }: { children: Snippet } = $props()
   let showSettings = $state(false)
   let sortBy = $state<'name' | 'visitors' | 'active'>('visitors')
+  let viewMode = $state<'cards' | 'table'>('cards')
 
   setContext('sortBy', {
     get: () => sortBy,
     set: (value: 'name' | 'visitors' | 'active') => (sortBy = value),
   })
 
-  $effect(() => {
-    themeState.init()
-
-    if (typeof localStorage !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored) as { sortBy?: 'name' | 'visitors' | 'active' }
-          if (parsed.sortBy && ['name', 'visitors', 'active'].includes(parsed.sortBy)) {
-            sortBy = parsed.sortBy
-          }
-        } catch {
-          // Use default
-        }
-      }
-    }
+  setContext('viewMode', {
+    get: () => viewMode,
+    set: (value: 'cards' | 'table') => (viewMode = value),
   })
 
+  let initialized = $state(false)
+
   $effect(() => {
-    const currentSortBy = sortBy
+    if (!initialized) {
+      themeState.init()
+
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored) as {
+              sortBy?: 'name' | 'visitors' | 'active'
+              viewMode?: 'cards' | 'table'
+            }
+            if (parsed.sortBy && ['name', 'visitors', 'active'].includes(parsed.sortBy)) {
+              sortBy = parsed.sortBy
+            }
+            if (parsed.viewMode && ['cards', 'table'].includes(parsed.viewMode)) {
+              viewMode = parsed.viewMode
+            }
+          } catch {
+            // Use default
+          }
+        }
+      }
+      initialized = true
+      return
+    }
 
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY)
@@ -47,7 +61,7 @@
           // Use empty object
         }
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, sortBy: currentSortBy }))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, sortBy, viewMode }))
     }
   })
 </script>

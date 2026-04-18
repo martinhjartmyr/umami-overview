@@ -9,6 +9,7 @@
     formatDuration,
   } from '$lib/utils/format.js'
   import { BarChart, Tooltip } from 'layerchart'
+  import { createHourlyBuckets } from '$lib/utils/chart.js'
 
   let {
     website,
@@ -18,45 +19,7 @@
   }: { website: Website; stats: WebsiteStats; active: number; pageviewData: PageviewData } =
     $props()
 
-  const chartData = $derived.by(() => {
-    const now = new Date()
-    const todayDate = now.toISOString().split('T')[0]
-    const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    const currentHour = now.getHours()
-
-    const buckets: { hour: string; label: string; pageviews: number; visitors: number }[] = []
-
-    for (let i = 0; i < 24; i++) {
-      const hour = (currentHour - 23 + i + 24) % 24
-      const timeStr = hour.toString().padStart(2, '0')
-      const isToday = i === 23
-      const dateStr = isToday ? todayDate : yesterdayDate
-      const label = `${dateStr} ${timeStr}:00`
-      buckets.push({ hour: timeStr, label, pageviews: 0, visitors: 0 })
-    }
-
-    const addToBucket = (x: string, y: number, field: 'pageviews' | 'visitors') => {
-      const datePart = x.split(' ')[0]
-      const hour = parseInt(x.split(' ')[1].split(':')[0], 10)
-
-      let offset = (hour - currentHour + 23 + 24) % 24
-
-      if (offset === 23 && hour === currentHour && datePart === yesterdayDate) {
-        offset = 22
-      }
-
-      buckets[offset]![field] += y
-    }
-
-    // Only use last 24 entries (API may return 25 due to timezone/inclusive end)
-    const last24Pageviews = pageviewData.pageviews.slice(-24)
-    const last24Sessions = pageviewData.sessions.slice(-24)
-
-    last24Pageviews.forEach((v) => addToBucket(v.x, v.y, 'pageviews'))
-    last24Sessions.forEach((v) => addToBucket(v.x, v.y, 'visitors'))
-
-    return buckets
-  })
+  const chartData = $derived(createHourlyBuckets(pageviewData))
 
   const umamiBaseUrl = $derived(dataStore.settings?.apiUrl?.replace(/\/$/, '') ?? '')
   const faviconUrl = $derived(`https://www.google.com/s2/favicons?domain=${website.domain}&sz=64`)
@@ -177,7 +140,7 @@
         <span>{formatNumber(stats.prev_visitors)}</span>
         <span class={trendColor(visitorsTrend.direction)}>
           {visitorsTrend.direction === 'up' ? '↑' : visitorsTrend.direction === 'down' ? '↓' : '—'}
-          {visitorsTrend.percent.toFixed(1)}%
+          {visitorsTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
@@ -199,7 +162,7 @@
         <span>{formatNumber(stats.prev_visits)}</span>
         <span class={trendColor(visitsTrend.direction)}>
           {visitsTrend.direction === 'up' ? '↑' : visitsTrend.direction === 'down' ? '↓' : '—'}
-          {visitsTrend.percent.toFixed(1)}%
+          {visitsTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
@@ -225,7 +188,7 @@
             : pageviewsTrend.direction === 'down'
               ? '↓'
               : '—'}
-          {pageviewsTrend.percent.toFixed(1)}%
+          {pageviewsTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
@@ -251,7 +214,7 @@
             : bounceRateTrend.direction === 'down'
               ? '↓'
               : '—'}
-          {bounceRateTrend.percent.toFixed(1)}%
+          {bounceRateTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
@@ -277,7 +240,7 @@
             : totaltimeTrend.direction === 'down'
               ? '↓'
               : '—'}
-          {totaltimeTrend.percent.toFixed(1)}%
+          {totaltimeTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>

@@ -60,7 +60,7 @@
         <span>{formatNumber(stats.prev_visitors)}</span>
         <span class={trendColor(visitorsTrend.direction)}>
           {visitorsTrend.direction === 'up' ? '↑' : visitorsTrend.direction === 'down' ? '↓' : '—'}
-          {visitorsTrend.percent.toFixed(1)}%
+          {visitorsTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
@@ -82,7 +82,7 @@
         <span>{formatNumber(stats.prev_visits)}</span>
         <span class={trendColor(visitsTrend.direction)}>
           {visitsTrend.direction === 'up' ? '↑' : visitsTrend.direction === 'down' ? '↓' : '—'}
-          {visitsTrend.percent.toFixed(1)}%
+          {visitsTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
@@ -108,7 +108,7 @@
             : pageviewsTrend.direction === 'down'
               ? '↓'
               : '—'}
-          {pageviewsTrend.percent.toFixed(1)}%
+          {pageviewsTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
@@ -134,7 +134,7 @@
             : bounceRateTrend.direction === 'down'
               ? '↓'
               : '—'}
-          {bounceRateTrend.percent.toFixed(1)}%
+          {bounceRateTrend.percent.toFixed(0)}%
         </span>
       </p>
     </div>
