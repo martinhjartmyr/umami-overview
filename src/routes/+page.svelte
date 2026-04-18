@@ -5,10 +5,8 @@
   import WebsiteCard from '$lib/components/website-card.svelte'
   import WebsiteCardSkeleton from '$lib/components/website-card-skeleton.svelte'
   import WebsiteTable from '$lib/components/website-table.svelte'
-  import AggregatedStatsCard from '$lib/components/aggregated-stats-card.svelte'
   import ViewToggle from '$lib/components/view-toggle.svelte'
   import SortSelect from '$lib/components/sort-select.svelte'
-  import type { WebsiteStats } from '$lib/data-access/types.js'
   import { getContext } from 'svelte'
 
   let showSettings = $state(false)
@@ -41,42 +39,6 @@
       return bActive - aActive
     })
   })
-
-  const aggregatedStats = $derived.by(() => {
-    let visitors = 0
-    let prev_visitors = 0
-    let visits = 0
-    let prev_visits = 0
-    let pageviews = 0
-    let prev_pageviews = 0
-    let bounces = 0
-    let prev_bounces = 0
-    let active = 0
-
-    for (const [id, stats] of dataStore.stats) {
-      visitors += stats.visitors
-      prev_visitors += stats.prev_visitors
-      visits += stats.visits
-      prev_visits += stats.prev_visits
-      pageviews += stats.pageviews
-      prev_pageviews += stats.prev_pageviews
-      bounces += stats.bounces
-      prev_bounces += stats.prev_bounces
-      active += dataStore.active.get(id) ?? 0
-    }
-
-    return {
-      visitors,
-      prev_visitors,
-      visits,
-      prev_visits,
-      pageviews,
-      prev_pageviews,
-      bounces,
-      prev_bounces,
-      active,
-    } as WebsiteStats & { active: number }
-  })
 </script>
 
 <div class="h-full p-3 sm:p-6">
@@ -85,9 +47,6 @@
       <p style="color: #ef4444;">Error: {dataStore.error}</p>
     {:else if dataStore.websites.length > 0}
       <div class="space-y-3 sm:space-y-6">
-        {#if dataStore.websites.length > 1 && dataStore.showAllWebsites}
-          <AggregatedStatsCard stats={aggregatedStats} active={aggregatedStats.active} />
-        {/if}
         <div class="flex items-center gap-2">
           <ViewToggle variant="segmented" />
           <SortSelect />
