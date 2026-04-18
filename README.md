@@ -11,7 +11,7 @@ A dashboard overview for Umami analytics. View all your websites' statistics at 
 
 ## Try it out
 
-Use the hosted version at **[umami-overview.novusy.com](https://umami-overview.novusy.com)** or deploy your own.
+Use the hosted version at **[umami-overview.novusy.com](https://umami-overview.novusy.com)** or [try the demo with mock data](https://umami-overview.novusy.com/?mock).
 
 ## Deploy your own
 

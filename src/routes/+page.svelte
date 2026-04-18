@@ -42,7 +42,7 @@
 </script>
 
 <div class="h-full p-3 sm:p-6">
-  {#if dataStore.settings}
+  {#if dataStore.settings || dataStore.websites.length > 0}
     {#if dataStore.error && dataStore.websites.length === 0}
       <p style="color: #ef4444;">Error: {dataStore.error}</p>
     {:else if dataStore.websites.length > 0}
@@ -88,27 +88,48 @@
     <div class="flex items-center justify-center py-12 sm:py-20">
       <div class="w-full max-w-md rounded-lg border border-border bg-primary px-6 py-8 text-center">
         <p class="mb-4 text-fg-muted">Configure your Umami connection to get started.</p>
-        <button
-          type="button"
-          onclick={() => (showSettings = true)}
-          class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-fg-muted hover:bg-tertiary"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="size-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+        <div class="flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onclick={() => (showSettings = true)}
+            class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-fg-muted hover:bg-tertiary"
           >
-            <path
-              d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
-            /><circle cx="12" cy="12" r="3" /></svg
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="size-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+              /><circle cx="12" cy="12" r="3" /></svg
+            >
+            <span>Settings</span>
+          </button>
+          <a
+            href="?mock"
+            data-sveltekit-reload
+            class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-fg-muted hover:bg-tertiary"
           >
-          <span>Settings</span>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="size-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            <span>Try demo</span>
+          </a>
+        </div>
       </div>
     </div>
   {/if}

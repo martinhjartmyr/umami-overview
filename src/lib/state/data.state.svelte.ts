@@ -302,6 +302,11 @@ export const dataStore = {
   },
 
   async init(): Promise<void> {
+    if (isMockMode()) {
+      await this.fetchAll()
+      return
+    }
+
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const allSettings = JSON.parse(stored)
