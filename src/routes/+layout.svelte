@@ -78,7 +78,7 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">
-  <header class="border-b border-border bg-primary px-4 py-3">
+  <header class="border-b border-border bg-primary px-3 py-3 sm:px-6">
     <div class="flex items-center justify-between">
       <h1 class="text-lg font-semibold text-fg md:text-xl">Umami Overview</h1>
       <div class="flex items-center gap-3">
