@@ -220,7 +220,7 @@ function generateMockPageviews(): Record<string, PageviewData> {
   }
 
   for (const w of MOCK_WEBSITES) {
-    const baseVisitors = MOCK_ACTIVE[w.id] ?? 10
+    const baseVisitors = MOCK_ACTIVE[w.id] || 10
     const scale = Math.max(baseVisitors / 100, 0.5)
     const pageviews: { x: string; y: number }[] = []
     const sessions: { x: string; y: number }[] = []
