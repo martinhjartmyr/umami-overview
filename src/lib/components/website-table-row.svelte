@@ -45,7 +45,7 @@
   onclick={() =>
     window.open(`${umamiBaseUrl}/websites/${website.id}`, '_blank', 'noopener,noreferrer')}
 >
-  <td class="px-4 py-3">
+  <td class="px-4 py-4">
     <div class="flex min-w-0 items-center gap-3">
       <img
         src={faviconUrl}
@@ -72,7 +72,7 @@
     </div>
   </td>
 
-  <td class="hidden w-32 px-4 py-3 sm:table-cell">
+  <td class="hidden w-32 px-4 py-4 sm:table-cell">
     <div class="h-10">
       <Chart data={chartData} x="hour" y="visitors" height={40} padding={0}>
         <Layer>
@@ -82,61 +82,76 @@
     </div>
   </td>
 
-  <td class="px-4 py-3 text-center">
+  <td class="px-4 py-4 text-center">
     {#if active > 0}
       <span class="text-sm font-semibold text-positive">{active.toLocaleString()}</span>
     {/if}
   </td>
 
-  <td class="px-4 py-3 text-right">
-    <div class="text-sm">
+  <td class="px-4 py-4 text-right">
+    <div class="flex flex-col items-end gap-0.5">
       <span class="font-semibold text-fg">{formatNumber(stats.visitors)}</span>
-      <span class="block text-xs sm:inline {trendColor(visitorsTrend.direction)}">
-        {visitorsTrend.direction === 'up' ? '↑' : visitorsTrend.direction === 'down' ? '↓' : '—'}
+      <span class="text-xs {trendColor(visitorsTrend.direction)}">
+        {formatNumber(stats.prev_visitors)}
+        {visitorsTrend.direction === 'up' ? ' ↑' : visitorsTrend.direction === 'down' ? ' ↓' : ' —'}
         {visitorsTrend.percent.toFixed(0)}%
       </span>
     </div>
   </td>
 
-  <td class="hidden px-4 py-3 md:table-cell">
-    <div class="text-sm">
+  <td class="hidden px-4 py-4 md:table-cell">
+    <div class="flex flex-col items-end gap-0.5">
       <span class="font-semibold text-fg">{formatNumber(stats.visits)}</span>
-      <span class="ml-1 text-xs {trendColor(visitsTrend.direction)}">
-        {visitsTrend.direction === 'up' ? '↑' : visitsTrend.direction === 'down' ? '↓' : '—'}
+      <span class="text-xs {trendColor(visitsTrend.direction)}">
+        {formatNumber(stats.prev_visits)}
+        {visitsTrend.direction === 'up' ? ' ↑' : visitsTrend.direction === 'down' ? ' ↓' : ' —'}
         {visitsTrend.percent.toFixed(0)}%
       </span>
     </div>
   </td>
 
-  <td class="hidden px-4 py-3 sm:table-cell">
-    <div class="text-sm">
+  <td class="hidden px-4 py-4 sm:table-cell">
+    <div class="flex flex-col items-end gap-0.5">
       <span class="font-semibold text-fg">{formatNumber(stats.pageviews)}</span>
-      <span class="ml-1 text-xs {trendColor(pageviewsTrend.direction)}">
-        {pageviewsTrend.direction === 'up' ? '↑' : pageviewsTrend.direction === 'down' ? '↓' : '—'}
+      <span class="text-xs {trendColor(pageviewsTrend.direction)}">
+        {formatNumber(stats.prev_pageviews)}
+        {pageviewsTrend.direction === 'up'
+          ? ' ↑'
+          : pageviewsTrend.direction === 'down'
+            ? ' ↓'
+            : ' —'}
         {pageviewsTrend.percent.toFixed(0)}%
       </span>
     </div>
   </td>
 
-  <td class="hidden px-4 py-3 lg:table-cell">
-    <div class="text-sm">
+  <td class="hidden px-4 py-4 lg:table-cell">
+    <div class="flex flex-col items-end gap-0.5">
       <span class="font-semibold text-fg">{Math.round(bounceRate)}%</span>
-      <span class="ml-1 text-xs {bounceRateTrendColor(bounceRateTrend.direction)}">
+      <span class="text-xs {bounceRateTrendColor(bounceRateTrend.direction)}">
+        {Math.round(prevBounceRate)}%
         {bounceRateTrend.direction === 'up'
-          ? '↑'
+          ? ' ↑'
           : bounceRateTrend.direction === 'down'
-            ? '↓'
-            : '—'}
+            ? ' ↓'
+            : ' —'}
         {bounceRateTrend.percent.toFixed(0)}%
       </span>
     </div>
   </td>
 
-  <td class="hidden px-4 py-3 lg:table-cell">
-    <div class="text-sm">
+  <td class="hidden px-4 py-4 lg:table-cell">
+    <div class="flex flex-col items-end gap-0.5">
       <span class="font-semibold text-fg">{formatDuration(avgDurationPerVisitor)}</span>
-      <span class="ml-1 text-xs {trendColor(totaltimeTrend.direction)}">
-        {totaltimeTrend.direction === 'up' ? '↑' : totaltimeTrend.direction === 'down' ? '↓' : '—'}
+      <span class="text-xs {trendColor(totaltimeTrend.direction)}">
+        {formatDuration(
+          stats.prev_visitors > 0 ? Math.round(stats.prev_totaltime / stats.prev_visitors) : 0,
+        )}
+        {totaltimeTrend.direction === 'up'
+          ? ' ↑'
+          : totaltimeTrend.direction === 'down'
+            ? ' ↓'
+            : ' —'}
         {totaltimeTrend.percent.toFixed(0)}%
       </span>
     </div>
