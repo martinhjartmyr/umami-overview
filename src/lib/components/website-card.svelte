@@ -96,7 +96,7 @@
       x="hour"
       y="visitors"
       height={100}
-      axis={true}
+      axis="y"
       grid={false}
       rule={false}
       props={{
