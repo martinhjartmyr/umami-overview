@@ -1,14 +1,7 @@
 <script lang="ts">
   import { dataStore, exportSettings, importSettings } from '$lib/state/data.state.svelte'
-  import { getContext } from 'svelte'
 
   let { onClose }: { onClose: () => void } = $props()
-
-  const sortContext = getContext<{
-    get: () => 'name' | 'visitors' | 'active'
-    set: (value: 'name' | 'visitors' | 'active') => void
-  }>('sortBy')
-  let sortBy = $state(sortContext.get())
 
   let apiUrl = $state(dataStore.settings?.apiUrl ?? '')
   let username = $state(dataStore.settings?.username ?? '')
@@ -173,21 +166,6 @@
             class="mt-1 block w-full rounded-md border border-border bg-primary px-3 py-2 text-fg shadow-sm focus:border-indigo-500 focus:outline-none"
           />
         </div>
-      </div>
-
-      <div class="mt-6 border-t border-border pt-4">
-        <label for="sortBy" class="block text-sm font-medium text-fg-muted">
-          Sort websites by
-        </label>
-        <select
-          bind:value={sortBy}
-          onchange={() => sortContext.set(sortBy)}
-          class="mt-1 block h-10 w-full rounded-md border border-border bg-primary px-3 text-fg shadow-sm focus:border-indigo-500 focus:outline-none"
-        >
-          <option value="name">Name</option>
-          <option value="visitors">Visitors</option>
-          <option value="active">Active</option>
-        </select>
       </div>
 
       <div class="mt-6 border-t border-border pt-4">

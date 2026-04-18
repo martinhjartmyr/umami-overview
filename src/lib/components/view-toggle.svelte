@@ -19,7 +19,8 @@
   <div class="inline-flex rounded-lg border border-border bg-primary p-0.5">
     <button
       type="button"
-      class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors {viewMode === 'cards'
+      class="rounded-md px-3 py-1.5 text-[10px] font-medium transition-colors sm:text-xs {viewMode ===
+      'cards'
         ? 'bg-tertiary text-fg'
         : 'text-fg-subtle hover:text-fg'}"
       onclick={() => viewContext.set('cards')}
@@ -28,7 +29,8 @@
     </button>
     <button
       type="button"
-      class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors {viewMode === 'table'
+      class="rounded-md px-3 py-1.5 text-[10px] font-medium transition-colors sm:text-xs {viewMode ===
+      'table'
         ? 'bg-tertiary text-fg'
         : 'text-fg-subtle hover:text-fg'}"
       onclick={() => viewContext.set('table')}

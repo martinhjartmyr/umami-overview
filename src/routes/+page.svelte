@@ -7,6 +7,7 @@
   import WebsiteTable from '$lib/components/website-table.svelte'
   import AggregatedStatsCard from '$lib/components/aggregated-stats-card.svelte'
   import ViewToggle from '$lib/components/view-toggle.svelte'
+  import SortSelect from '$lib/components/sort-select.svelte'
   import type { WebsiteStats } from '$lib/data-access/types.js'
   import { getContext } from 'svelte'
 
@@ -87,8 +88,9 @@
         {#if dataStore.websites.length > 1 && dataStore.showAllWebsites}
           <AggregatedStatsCard stats={aggregatedStats} active={aggregatedStats.active} />
         {/if}
-        <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
           <ViewToggle variant="segmented" />
+          <SortSelect />
         </div>
         {#if viewMode === 'cards'}
           <div class="website-grid grid gap-3 sm:gap-6" style="grid-template-columns: 1fr;">
