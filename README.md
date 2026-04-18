@@ -1,6 +1,6 @@
 # Umami Overview
 
-A dashboard overview for Umami analytics. View all your websites' statistics at a glance, including visitors, pageviews, and active users.
+A dashboard overview for [Umami](https://umami.is) analytics. View all your websites' statistics at a glance, including visitors, pageviews, and active users.
 
 ## Features
 
@@ -8,6 +8,16 @@ A dashboard overview for Umami analytics. View all your websites' statistics at 
 - **Sortable views**: Sort data by name, visitors, or active users
 - **Dark/light mode**: Automatic theme based on system preference
 - **Persistent settings**: Your preferences are saved locally
+
+## Screenshots
+
+### Cards View
+
+![Cards View](./screenshot-cards.png)
+
+### Table View
+
+![Table View](./screenshot-table.png)
 
 ## Try it out
 
