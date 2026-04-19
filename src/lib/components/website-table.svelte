@@ -35,23 +35,23 @@
           class="hidden px-4 py-3 text-center text-xs font-medium tracking-wide text-fg-subtle uppercase sm:table-cell"
           >Active</th
         >
-        <th class="px-4 py-3 text-left text-xs font-medium tracking-wide text-fg-subtle uppercase"
+        <th class="px-4 py-3 text-right text-xs font-medium tracking-wide text-fg-subtle uppercase"
           >Visitors</th
         >
         <th
-          class="hidden px-4 py-3 text-left text-xs font-medium tracking-wide text-fg-subtle uppercase md:table-cell"
+          class="hidden px-4 py-3 text-right text-xs font-medium tracking-wide text-fg-subtle uppercase md:table-cell"
           >Visits</th
         >
         <th
-          class="hidden px-4 py-3 text-left text-xs font-medium tracking-wide text-fg-subtle uppercase sm:table-cell"
+          class="hidden px-4 py-3 text-right text-xs font-medium tracking-wide text-fg-subtle uppercase sm:table-cell"
           >Views</th
         >
         <th
-          class="hidden px-4 py-3 text-left text-xs font-medium tracking-wide text-fg-subtle uppercase lg:table-cell"
+          class="hidden px-4 py-3 text-right text-xs font-medium tracking-wide text-fg-subtle uppercase lg:table-cell"
           >Bounce Rate</th
         >
         <th
-          class="hidden px-4 py-3 text-left text-xs font-medium tracking-wide text-fg-subtle uppercase lg:table-cell"
+          class="hidden px-4 py-3 text-right text-xs font-medium tracking-wide text-fg-subtle uppercase lg:table-cell"
           >Visit Duration</th
         >
       </tr>
