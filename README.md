@@ -13,11 +13,11 @@ A dashboard overview for [Umami](https://umami.is) analytics. View all your webs
 
 ### Cards View
 
-![Cards View](./screenshot-cards.png)
+![Cards View](./screenshot-cards.jpg)
 
 ### Table View
 
-![Table View](./screenshot-table.png)
+![Table View](./screenshot-table.jpg)
 
 ## Try it out
 
