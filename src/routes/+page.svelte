@@ -50,6 +50,27 @@
         <div class="flex items-center gap-2">
           <ViewToggle variant="segmented" />
           <SortSelect />
+          <button
+            type="button"
+            disabled={dataStore.isRefreshing}
+            onclick={() => dataStore.refresh()}
+            class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-border text-fg-subtle transition-colors hover:bg-tertiary hover:text-fg disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Refresh data"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="size-4 {dataStore.isRefreshing ? 'animate-spin' : ''}"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              <polyline points="21 3 21 9 15 9" />
+            </svg>
+          </button>
         </div>
         {#if viewMode === 'cards'}
           <div class="website-grid grid gap-3 sm:gap-6" style="grid-template-columns: 1fr;">

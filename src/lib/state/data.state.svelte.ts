@@ -259,6 +259,7 @@ let active: SvelteMap<string, number> = new SvelteMap()
 let pageviews: SvelteMap<string, PageviewData> = new SvelteMap()
 let timezone: string = $state('')
 let isLoading: boolean = $state(false)
+let isRefreshing: boolean = $state(false)
 let error: string | null = $state(null)
 
 function resetState() {
@@ -269,6 +270,7 @@ function resetState() {
   active = new SvelteMap()
   pageviews = new SvelteMap()
   isLoading = false
+  isRefreshing = false
   error = null
 }
 
@@ -296,6 +298,9 @@ export const dataStore = {
   },
   get isLoading() {
     return isLoading
+  },
+  get isRefreshing() {
+    return isRefreshing
   },
   get error() {
     return error
@@ -446,6 +451,49 @@ export const dataStore = {
       }
     } catch (e) {
       error = e instanceof Error ? e.message : 'Unknown error'
+    }
+  },
+
+  async refresh(): Promise<void> {
+    if (isMockMode()) {
+      isRefreshing = true
+      error = null
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        const newStats = new SvelteMap<string, WebsiteStats>()
+        const newActive = new SvelteMap<string, number>()
+        const newPageviews = new SvelteMap<string, PageviewData>()
+        const mockPageviews = generateMockPageviews()
+        for (const w of MOCK_WEBSITES) {
+          newStats.set(w.id, MOCK_STATS[w.id])
+          newActive.set(w.id, MOCK_ACTIVE[w.id])
+          newPageviews.set(w.id, mockPageviews[w.id])
+        }
+        stats = newStats
+        active = newActive
+        pageviews = newPageviews
+      } catch (e) {
+        error = e instanceof Error ? e.message : 'Unknown error'
+      } finally {
+        isRefreshing = false
+      }
+      return
+    }
+
+    if (!service || websites.length === 0) return
+
+    isRefreshing = true
+    error = null
+
+    try {
+      await this.fetchStatsAndActive()
+      if (!error) {
+        await this.fetchPageviewsData()
+      }
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Unknown error'
+    } finally {
+      isRefreshing = false
     }
   },
 }
