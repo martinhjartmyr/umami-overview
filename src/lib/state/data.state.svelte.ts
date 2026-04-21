@@ -6,6 +6,7 @@ export interface AllSettings {
   theme?: 'light' | 'dark' | 'auto'
   umami?: Partial<UmamiSettings>
   sortBy?: 'name' | 'visitors' | 'active'
+  refreshInterval?: number | null
 }
 
 const STORAGE_KEY = 'umami-overview-settings'
@@ -261,6 +262,34 @@ let timezone: string = $state('')
 let isLoading: boolean = $state(false)
 let isRefreshing: boolean = $state(false)
 let error: string | null = $state(null)
+let refreshTimer: ReturnType<typeof setInterval> | null = null
+
+function getRefreshInterval(): number | null {
+  const stored = localStorage.getItem(STORAGE_KEY)
+  if (!stored) return null
+  try {
+    const allSettings: AllSettings = JSON.parse(stored)
+    return allSettings.refreshInterval ?? null
+  } catch {
+    return null
+  }
+}
+
+function startAutoRefresh(): void {
+  stopAutoRefresh()
+  const interval = getRefreshInterval()
+  if (!interval || interval <= 0) return
+  refreshTimer = setInterval(() => {
+    dataStore.refresh()
+  }, interval * 1000)
+}
+
+function stopAutoRefresh(): void {
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+  }
+}
 
 function resetState() {
   settings = null
@@ -272,6 +301,14 @@ function resetState() {
   isLoading = false
   isRefreshing = false
   error = null
+}
+
+function handleVisibilityChange() {
+  if (document.visibilityState === 'hidden') {
+    stopAutoRefresh()
+  } else {
+    startAutoRefresh()
+  }
 }
 
 export const dataStore = {
@@ -305,33 +342,47 @@ export const dataStore = {
   get error() {
     return error
   },
+  get refreshInterval(): number | null {
+    return getRefreshInterval()
+  },
+
+  restartAutoRefresh(): void {
+    startAutoRefresh()
+  },
 
   async init(): Promise<void> {
     if (isMockMode()) {
       await this.fetchAll()
-      return
+    } else {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const allSettings = JSON.parse(stored)
+        const s = allSettings.umami as UmamiSettings
+        settings = s
+        service = new UmamiService(s.apiUrl)
+        await service.login(
+          s.apiKey ? { apiKey: s.apiKey } : { username: s.username!, password: s.password! },
+        )
+        await this.fetchAll()
+      }
     }
 
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      const allSettings = JSON.parse(stored)
-      const s = allSettings.umami as UmamiSettings
-      settings = s
-      service = new UmamiService(s.apiUrl)
-      await service.login(
-        s.apiKey ? { apiKey: s.apiKey } : { username: s.username!, password: s.password! },
-      )
-      await this.fetchAll()
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+      startAutoRefresh()
     }
   },
 
-  async saveSettings(s: UmamiSettings): Promise<void> {
+  async saveSettings(s: UmamiSettings, refreshInterval?: number | null): Promise<void> {
     settings = s
     const existingStored = localStorage.getItem(STORAGE_KEY)
     const existing = existingStored ? JSON.parse(existingStored) : {}
     const merged = {
       ...existing,
       umami: s,
+      refreshInterval:
+        refreshInterval !== undefined ? refreshInterval : (existing.refreshInterval ?? null),
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
     service = new UmamiService(s.apiUrl)
@@ -341,10 +392,15 @@ export const dataStore = {
       await service.login({ username: s.username, password: s.password })
     }
     await this.fetchAll()
+    startAutoRefresh()
   },
 
   clearSettings(): void {
     localStorage.removeItem(STORAGE_KEY)
+    stopAutoRefresh()
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
     resetState()
   },
 
@@ -455,6 +511,8 @@ export const dataStore = {
   },
 
   async refresh(): Promise<void> {
+    if (isRefreshing) return
+
     if (isMockMode()) {
       isRefreshing = true
       error = null
@@ -516,6 +574,10 @@ export async function importSettings(json: string): Promise<{ success: boolean; 
     const merged = {
       theme: parsed.theme ?? existing.theme,
       sortBy: parsed.sortBy ?? existing.sortBy,
+      refreshInterval:
+        parsed.refreshInterval !== undefined
+          ? parsed.refreshInterval
+          : (existing.refreshInterval ?? null),
       umami: {
         apiUrl: parsed.umami.apiUrl,
         username: parsed.umami.username ?? existing.umami?.username,
@@ -604,6 +666,7 @@ export async function importSettings(json: string): Promise<{ success: boolean; 
       return { success: false, error }
     }
 
+    startAutoRefresh()
     return { success: true }
   } catch {
     return { success: false, error: 'Invalid settings format' }

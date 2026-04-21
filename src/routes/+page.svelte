@@ -53,7 +53,10 @@
           <button
             type="button"
             disabled={dataStore.isRefreshing}
-            onclick={() => dataStore.refresh()}
+            onclick={() => {
+              dataStore.refresh()
+              dataStore.restartAutoRefresh()
+            }}
             class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-border text-fg-subtle transition-colors hover:bg-tertiary hover:text-fg disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Refresh data"
           >
