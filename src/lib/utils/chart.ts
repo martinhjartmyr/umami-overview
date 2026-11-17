@@ -7,9 +7,18 @@ export interface HourlyBucket {
   visitors: number
 }
 
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export function createHourlyBuckets(pageviewData: PageviewData, now = new Date()): HourlyBucket[] {
-  const todayDate = now.toISOString().split('T')[0]
-  const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  const todayDate = formatLocalDate(now)
+  const yesterday = new Date(now)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayDate = formatLocalDate(yesterday)
   const currentHour = now.getHours()
 
   const buckets: HourlyBucket[] = []
@@ -24,8 +33,11 @@ export function createHourlyBuckets(pageviewData: PageviewData, now = new Date()
   }
 
   const addToBucket = (x: string, y: number, field: 'pageviews' | 'visitors') => {
-    const datePart = x.split(' ')[0]
-    const hour = parseInt(x.split(' ')[1].split(':')[0], 10)
+    const [datePart, timePart] = x.split(/[T ]/)
+    if (!datePart || !timePart) return
+
+    const hour = parseInt(timePart.split(':')[0], 10)
+    if (Number.isNaN(hour) || hour < 0 || hour > 23) return
 
     let offset = (hour - currentHour + 23 + 24) % 24
 
@@ -33,7 +45,10 @@ export function createHourlyBuckets(pageviewData: PageviewData, now = new Date()
       offset = 22
     }
 
-    buckets[offset]![field] += y
+    const value = Number(y)
+    if (!Number.isFinite(value)) return
+
+    buckets[offset]![field] += value
   }
 
   const last24Pageviews = pageviewData.pageviews.slice(-24)

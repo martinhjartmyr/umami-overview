@@ -611,6 +611,7 @@ export async function importSettings(json: string): Promise<{ success: boolean; 
     error = null
 
     try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
       const allWebsites = await service.fetchWebsites()
       websites = allWebsites
     } catch (e) {
