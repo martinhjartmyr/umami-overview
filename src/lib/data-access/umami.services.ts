@@ -132,7 +132,7 @@ export class UmamiService {
     endAt: number,
     timezone: string,
   ): Promise<PageviewData> {
-    const url = `${this.apiUrl}/api/websites/${websiteId}/pageviews?startAt=${startAt}&endAt=${endAt}&unit=hour&timezone=${timezone}`
+    const url = `${this.apiUrl}/api/websites/${websiteId}/pageviews?startAt=${startAt}&endAt=${endAt}&unit=hour&timezone=${encodeURIComponent(timezone)}`
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${this.token}` },
     })
